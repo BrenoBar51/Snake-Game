@@ -8,7 +8,7 @@ const snake = [
     {x:540, y:500}
 ];
 
-let direction
+let direction = "";
 
 const drawSnake = () => {   
     ctx.fillStyle = "#868686"
@@ -52,4 +52,4 @@ setInterval(() =>{
     
     moveSnake();
     drawSnake();
-}, 300);
+}, 600);
