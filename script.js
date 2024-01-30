@@ -1,16 +1,25 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 const audio = new Audio("assets/audio-snake-eating.mp3");
+const score = document.querySelector(".score--value");
+const finalScore = document.querySelector(".final-score > span");
+const menu = document.querySelector(".menu-screen");
+const buttonPlay = document.querySelector(".btn-play")
 
 const size = 50;
 
-const snake = [
-    { x: 500, y: 500 },
-    { x: 550, y: 500 }
-];
+const initialPosition = {
+    x: 500, y: 500 
+}
+
+let snake = [initialPosition];
+
+const incrementScore = () => {
+    score.innerText = +score.innerText + 10
+}
 
 const randomNumber = (min, max) =>{
-    return Math.round(Math.random() * (max - min) + (min));
+    return Math.round(Math.random() * (max - min) + min);
 }
 
 const randomPosition = () =>{
@@ -32,8 +41,7 @@ const food = {
     color: randomColor()
 }
 
-let direction
-let loopId
+let direction, loopId
 
 const drawFood = () =>{
     const {x, y, color} = food
@@ -55,24 +63,6 @@ const drawSnake = () => {
 
         ctx.fillRect(position.x, position.y, size, size)
     });
-}
-
-const drawGrid = () =>{
-    ctx.lineWidth = 1
-    ctx.strokeStyle = "#202020"
-
-    for (let i = 50; i < canvas.width; i += 50){
-        
-        ctx.beginPath()
-        ctx.lineTo(i, 0)
-        ctx.lineTo(i, 1000)
-        ctx.stroke()
-        
-        ctx.beginPath()
-        ctx.lineTo(0, i)
-        ctx.lineTo(1000, i)
-        ctx.stroke()
-    }
 }
 
 const moveSnake = () => {
@@ -100,9 +90,29 @@ const moveSnake = () => {
     snake.shift()
 }
 
+const drawGrid = () =>{
+    ctx.lineWidth = 1
+    ctx.strokeStyle = "#202020"
+
+    for (let i = 50; i < canvas.width; i += 50){
+        
+        ctx.beginPath()
+        ctx.lineTo(i, 0)
+        ctx.lineTo(i, 1000)
+        ctx.stroke()
+        
+        ctx.beginPath()
+        ctx.lineTo(0, i)
+        ctx.lineTo(1000, i)
+        ctx.stroke()
+    }
+}
+
 const checkEat = () =>{
     const head = snake[snake.length - 1]
+
     if (head.x == food.x && head.y == food.y){
+        incrementScore();
         snake.push(head);
         audio.play();
 
@@ -138,21 +148,28 @@ const checkCollision = () => {
 
 const gameOver = () => {
     direction = undefined
+
+    menu.style.display = "flex"
+    finalScore.innerText = score.innerText
+    canvas.style.filter = "blur(2px)"
 }
 
 const gameLoop = () => {
     clearInterval(loopId)
+
     ctx.clearRect(0, 0, 1000, 1000)
     drawGrid();
     drawFood();
     moveSnake();
-    checkCollision();
     drawSnake();
     checkEat();
+    checkCollision();
+
     loopId = setTimeout(() => {
         gameLoop();
     }, 300);
 }
+
 gameLoop();
 
 document.addEventListener("keydown", ({ key }) =>{
@@ -168,4 +185,11 @@ document.addEventListener("keydown", ({ key }) =>{
     if (key == "ArrowUp" && direction != "down"){
         direction = "up"
     }
+});
+
+buttonPlay.addEventListener("click", () => {
+    score.innerText = "00";
+    menu.style.display = "none";
+    canvas.style.filter = "none";
+    snake = [initialPosition];
 });
